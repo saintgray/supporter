@@ -20,6 +20,9 @@ public class IterableSupporter {
     @SafeVarargs
     public static <T> Stream<T> filterStream(Collection<T> collections, Predicate<? super T>... filters) {
         Stream<T> stream = collections.stream();
+        if (filters == null) {
+            return stream;
+        }
         for (Predicate<? super T> predicate : filters) {
             stream = stream.filter(predicate);
         }
@@ -28,10 +31,13 @@ public class IterableSupporter {
 
     @SafeVarargs
     public static <T> Stream<T> sortedStream(Stream<T> stream, Comparator<T>... comparators) {
+        if (comparators == null || comparators.length == 0) {
+            return stream;
+        }
         Comparator<T> chainedComparator = comparators[0];
         for (int i = 1; i < comparators.length; i++) {
             Comparator<T> comparator = comparators[i];
-            chainedComparator.thenComparing(comparator);
+            chainedComparator = chainedComparator.thenComparing(comparator);
         }
         return stream.sorted(chainedComparator);
     }
@@ -43,12 +49,15 @@ public class IterableSupporter {
 
     @SafeVarargs
     public static <T> Collection<T> mergeCollection(Collection<T>... collections) {
-        return Arrays.stream(collections).flatMap(Collection::stream).collect(Collectors.toList());
+        return Arrays.stream(collections).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     @SafeVarargs
     @SuppressWarnings({"unchecked"})
     public static <T> Collection<T> removeInCollection(Collection<T> collections, Predicate<T>... conditions) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (conditions == null || conditions.length == 0) {
+            return collections;
+        }
         Collection<T> mutableCollections = (Collection<T>) collections.getClass().getDeclaredConstructor().newInstance();
         mutableCollections.addAll(collections);
         Predicate<T> combinedFilter = conditions[0];
