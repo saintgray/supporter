@@ -38,7 +38,7 @@ public class AttributeSupporter {
         return collections == null ? Objects.requireNonNull(supplier).get() : collections;
     }
 
-    public static <K, V> Map<K, V> defaultIfNull(Map<K, V> map, Supplier<Map<K, V>> supplier) {
+    public static <K, V> Map<K, V> defaultIfNull(Map<K, V> map, Supplier<? extends Map<K, V>> supplier) {
         return map == null ? Objects.requireNonNull(supplier).get() : map;
     }
 }
