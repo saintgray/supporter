@@ -68,6 +68,10 @@ public class Example {
         // 4. map 에서 특정 data 추출
         Student student = extract(studentMap, "판교초등학교", 6, 1, "오종현"); //expect non null
         Student student2 = extract(studentMap, "없는초등학교", 6, 1, "오종현"); // expect null;
+        // 4-1. 서울초등학교 2학년 학생 Map 추출
+        Map<Integer, Map<String, Student>> seoulClassStudentMap = extract(studentMap, "서울초등학교", 2);
+        // 4-2. 서울초 2학년 학생을 모두 추출
+        Collection<Student> seoulSecondGradeStudents = flattenToCollection(extract(studentMap, "서울초등학교", 2), ArrayList::new);
         // 5. map 에 특정 data 주입
         Student newStudent = new Student("새로운초등학교", "김똥개", 1, 6);
         inject(newStudent, studentMap, newStudent.getSchoolName(), newStudent.getGrade(), newStudent.getClassNo(), newStudent.getName());
