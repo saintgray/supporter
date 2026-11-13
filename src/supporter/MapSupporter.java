@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MapSupporter {
+public final class MapSupporter {
 
     public static <V> V extract(Map<?, ?> map, Function<?, ?>... extractors) {
         return recursivelyExtract(map, extractors, 0);

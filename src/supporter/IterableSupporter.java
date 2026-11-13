@@ -1,6 +1,5 @@
 package supporter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -10,7 +9,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class IterableSupporter {
+public final class IterableSupporter {
 
     @SafeVarargs
     public static <T> Collection<T> filterCollection(Collection<T> collections, Predicate<? super T>... filters) {
@@ -53,20 +52,28 @@ public class IterableSupporter {
     }
 
     @SafeVarargs
-    @SuppressWarnings({"unchecked"})
-    public static <T> Collection<T> removeInCollection(Collection<T> collections, Predicate<T>... conditions) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static <T, C extends Collection<T>> C removeInCollection(Collection<T> collections,
+                                                                    Supplier<C> collectionFactory,
+                                                                    Predicate<? super T>... conditions) {
+
+        if (collections == null) {
+            return null;
+        }
+        // 1. Supplier를 통해 원하는 타입의 새 컬렉션 생성 (Comparator 등 설정 유지)
+        C resultCollection = collectionFactory.get();
+        resultCollection.addAll(collections);
+        // 2. 제거 조건이 없으면 복사본만 반환
         if (conditions == null || conditions.length == 0) {
-            return collections;
+            return resultCollection;
         }
-        Collection<T> mutableCollections = (Collection<T>) collections.getClass().getDeclaredConstructor().newInstance();
-        mutableCollections.addAll(collections);
-        Predicate<T> combinedFilter = conditions[0];
+        // 3. 조건 결합 (OR 연산)
+        Predicate<T> combinedFilter = conditions[0]::test;
         for (int i = 1; i < conditions.length; i++) {
-            Predicate<T> condition = conditions[i];
-            combinedFilter = combinedFilter.or(condition);
+            combinedFilter = combinedFilter.or(conditions[i]);
         }
-        mutableCollections.removeIf(combinedFilter);
-        return mutableCollections;
+        // 4. 조건에 일치하는 요소 제거 후 반환
+        resultCollection.removeIf(combinedFilter);
+        return resultCollection;
     }
 
 

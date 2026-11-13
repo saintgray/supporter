@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class AttributeSupporter {
+public final class AttributeSupporter {
 
     public static <T extends Number> T defaultIfEmpty(T val, T defaultVal) {
         return val == null ? defaultVal : val;
